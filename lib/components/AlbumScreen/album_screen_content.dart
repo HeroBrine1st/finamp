@@ -77,14 +77,10 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
     final displayChildren = allTracks ?? [];
     final queueChildren = playableTracks ?? [];
 
-    void onDelete(BaseItemDto item) {
-      // This is pretty inefficient (has to search through whole list) but
-      // TracksSliverList gets passed some weird split version of children to
-      // handle multi-disc albums and it's 00:35 so I can't be bothered to get
-      // it to return an index
+    void onDelete(BaseItemDto item, int index) {
       setState(() {
-        queueChildren.removeWhere((element) => element.id == item.id);
-        displayChildren.removeWhere((element) => element.id == item.id);
+        assert(queueChildren.removeAt(index).id == item.id);
+        assert(displayChildren.removeAt(index).id == item.id);
       });
     }
 
@@ -206,7 +202,7 @@ class TracksSliverList extends ConsumerStatefulWidget {
   final List<BaseItemDto> childrenForList;
   final List<BaseItemDto> childrenForQueue;
   final BaseItemDto parent;
-  final BaseItemDtoCallback? onRemoveFromList;
+  final void Function(BaseItemDto item, int index)? onRemoveFromList;
   final bool forceAlbumArtists;
   final SortBy? adaptiveAdditionalInfoSortBy;
   final bool isOnArtistScreen;
@@ -251,14 +247,14 @@ class _TracksSliverListState extends ConsumerState<TracksSliverList> {
 
         final BaseItemDto item = widget.childrenForList[index];
 
-        BaseItemDto removeItem() {
+        (BaseItemDto, int) removeItem() {
           late BaseItemDto item;
 
           setState(() {
             item = widget.childrenForList.removeAt(index);
           });
 
-          return item;
+          return (item, index);
         }
 
         return TrackListTile(
@@ -269,9 +265,9 @@ class _TracksSliverListState extends ConsumerState<TracksSliverList> {
           showCover: item.albumId != widget.parent.id || ref.watch(finampSettingsProvider.showCoversOnAlbumScreen),
           parentItem: widget.parent,
           onRemoveFromList: () {
-            final item = removeItem();
+            final (item, index) = removeItem();
             if (widget.onRemoveFromList != null) {
-              widget.onRemoveFromList!(item);
+              widget.onRemoveFromList!(item, index);
             }
           },
           isInPlaylist: widget.parent.type == "Playlist",
