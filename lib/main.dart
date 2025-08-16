@@ -44,6 +44,7 @@ import 'package:finamp/services/ui_overlay_setter_observer.dart';
 import 'package:finamp/services/widget_bindings_observer_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -100,6 +101,7 @@ final _mainLog = Logger("Main()");
 void main() async {
   // If the app has failed, this is set to true. If true, we don't attempt to run the main app since the error app has started.
   bool hasFailed = false;
+  final providerScopeKey = GlobalKey();
   try {
     await setupLogging();
     await _setupEdgeToEdgeOverlayStyle();
@@ -120,6 +122,13 @@ void main() async {
     await _setupDownloadsHelper();
     _mainLog.info("Setup downloads service");
     await _setupProviders();
+    unawaited(
+      Stream.periodic(Duration(seconds: 10)).forEach((_) {
+        if (!SchedulerBinding.instance.framesEnabled) {
+          (providerScopeKey.currentContext as InheritedElement).build();
+        }
+      }),
+    );
     _mainLog.info("Setup providers");
     await _setupOSIntegration();
     _mainLog.info("Setup os integrations");
@@ -162,7 +171,7 @@ void main() async {
 
     _mainLog.info("Launching main app");
 
-    runApp(const Finamp());
+    runApp(Finamp(providerScopeKey: providerScopeKey));
   }
 }
 
@@ -470,7 +479,9 @@ Future<void> _setupFinampUserHelper() async {
 }
 
 class Finamp extends StatefulWidget {
-  const Finamp({super.key});
+  const Finamp({super.key, required this.providerScopeKey});
+
+  final GlobalKey providerScopeKey;
 
   @override
   State<Finamp> createState() => _FinampState();
@@ -523,6 +534,7 @@ class _FinampState extends State<Finamp> with WindowListener {
   @override
   Widget build(BuildContext context) {
     return UncontrolledProviderScope(
+      key: widget.providerScopeKey,
       container: GetIt.instance<ProviderContainer>(),
       child: GestureDetector(
         onTap: () {
