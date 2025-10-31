@@ -100,8 +100,8 @@ dependencies:
       ref: 4992c3b
       path: packages/palette_generator
   flutter_tabler_icons: ^1.43.0
-  flutter_riverpod: ^2.6.1
-  riverpod_annotation: ^2.6.1
+  flutter_riverpod: ^3.0.0
+  riverpod_annotation: ^3.0.0
   locale_names: ^1.1.1
   flutter_cache_manager: ^3.4.1
   # fix not showing elipses when maxLines==1
@@ -119,7 +119,7 @@ dependencies:
   focus_on_it: ^2.0.1
   flutter_svg: ^2.0.17
   meta: ^1.15.0
-  analyzer: ^7.0.0
+  analyzer: ^8.0.0
   build: ^2.4.2
   source_gen: ^2.0.0
   web_socket_channel: ^3.0.2
@@ -143,15 +143,11 @@ dev_dependencies:
   json_serializable: ^6.9.0
   flutter_launcher_icons: ^0.14.1
   flutter_lints: ^6.0.0
-  riverpod_generator: ^2.6.1
-  custom_lint: ^0.7.0
-  riverpod_lint: ^2.6.3
+  riverpod_generator: ^3.0.0
+  custom_lint: ^0.8.1
+  riverpod_lint: ^3.0.0
   # This fork updates isar_generator with analyzer 7.0.0 compatibility
-  isar_generator:
-    git:
-      url: https://github.com/callumw-k/isar.git
-      ref: f070a067378c215b9212a2a22ea593293671c9c9
-      path: packages/isar_generator
+  isar_community: ^3.3.0-dev.3
   msix: ^3.16.9
 
 dependency_overrides:
